@@ -1,0 +1,169 @@
+<div class="container">
+    <h2 class="title">Quiz Management</h2>
+   
+    <mat-card class="form-section">
+      <h3>Course Information</h3>
+      <div class="row">
+    
+        <!-- Programme Dropdown -->
+<mat-form-field appearance="outline" class="full-width">
+  <mat-label>Programme</mat-label>
+  <mat-select [(ngModel)]="programme" name="programme">
+    <mat-option *ngFor="let prog of programmeOptions" [value]="prog">
+      {{ prog }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+<!-- Semester Dropdown -->
+<mat-form-field appearance="outline" class="full-width">
+  <mat-label>Semester</mat-label>
+  <mat-select [(ngModel)]="semester" name="semester">
+    <mat-option *ngFor="let sem of semesterOptions" [value]="sem">
+      {{ sem }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+        
+    
+    
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Course Code</mat-label>
+        <input matInput [(ngModel)]="courseCode" placeholder="Enter Course Code (e.g., OBC101)" />
+      </mat-form-field>
+    
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Course Title</mat-label>
+        <input matInput [(ngModel)]="courseTitle" placeholder="Enter Course Title (e.g., Data Structures)" />
+      </mat-form-field>
+    </div>
+    </mat-card>
+    
+    
+
+    
+    <!-- Video Details -->
+    <mat-card class="form-section">
+      <h3>Video Details</h3>
+      
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>YouTube Video ID</mat-label>
+        <input matInput [(ngModel)]="videoID" (input)="updateVideoPreview()" placeholder="Enter YouTube Video ID" />
+      </mat-form-field>
+  
+      <iframe
+        *ngIf="videoPreview"
+        [src]="videoPreview"
+        frameborder="0"
+        allowfullscreen
+        class="video-preview"
+      ></iframe>
+  
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Video Location (LMS)</mat-label>
+        <input matInput [(ngModel)]="videoLocation" placeholder="Enter LMS Video Link" />
+      </mat-form-field>
+    </mat-card>
+  
+    <!-- Topics & Questions -->
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let topic of topics; let topicIndex = index" [expanded]="topicIndex === 0" class="topic-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Topic {{ topicIndex + 1 }}</mat-panel-title>
+        </mat-expansion-panel-header>
+  
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Time (mm:ss)</mat-label>
+            <input matInput [(ngModel)]="topic.startTime" placeholder="00:00" />
+          </mat-form-field>
+  
+          <mat-form-field appearance="outline">
+            <mat-label>End Time (mm:ss)</mat-label>
+            <input matInput [(ngModel)]="topic.endTime" placeholder="00:00" />
+          </mat-form-field>
+        </div>
+  
+        <!-- Question Sets -->
+        <div *ngFor="let set of topic.questionSets; let setIndex = index" class="question-set">
+          <h4>Question Set {{ setIndex + 1 }}</h4>
+  
+          <mat-card *ngFor="let question of set.questions; let qIndex = index" class="question-card">
+            <mat-card-content>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Question {{ qIndex + 1 }}</mat-label>
+                <input matInput [(ngModel)]="question.que" placeholder="Enter Question" />
+              </mat-form-field>
+  
+              <div *ngFor="let option of question.options; let optIndex = index; trackBy: trackByIndex" class="row option-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Option {{ optIndex + 1 }}</mat-label>
+                  <input matInput [(ngModel)]="question.options[optIndex]" name="option{{optIndex}}" placeholder="Enter Option" />
+                </mat-form-field>
+                <button mat-button color="warn" (click)="removeOption(question, optIndex)" class="remove-btn">Remove</button>
+              </div>
+              
+              <button mat-button color="primary" (click)="addOption(question)">+ Add Option</button>
+  
+              <mat-form-field appearance="outline">
+                <mat-label>Correct Answer (0-{{ question.options.length - 1 }})</mat-label>
+                <input matInput type="number" [(ngModel)]="question.correctAns" placeholder="Enter Correct Option Index" />
+              </mat-form-field>
+  
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Feedback for Correct Answer</mat-label>
+                <textarea matInput [(ngModel)]="question.feedback" placeholder="Enter Feedback"></textarea>
+              </mat-form-field>
+  
+              <button mat-button color="warn" (click)="removeQuestion(set, qIndex)">Remove Question</button>
+            </mat-card-content>
+          </mat-card>
+  
+          <button mat-button color="accent" (click)="addQuestion(set)">+ Add Question</button>
+          <button mat-button color="warn" (click)="removeQuestionSet(topic, setIndex)">Remove Question Set</button>
+        </div>
+  
+        <button mat-button color="primary" (click)="addQuestionSet(topic)">+ Add Question Set</button>
+        <button mat-button color="warn" (click)="removeTopic(topicIndex)">Remove Topic</button>
+      </mat-expansion-panel>
+    </mat-accordion>
+  
+    <div class="buttons">
+      <button mat-button color="primary" (click)="addTopic()">+ Add Topic</button>
+      <button mat-raised-button color="primary" (click)="saveQuiz()">Save Quiz</button>
+    </div>
+    <button mat-button color="accent" (click)="togglePreview()">
+      {{ showPreview ? 'Hide Preview' : 'Preview Quiz' }}
+    </button>
+    <div *ngIf="showPreview" class="preview-section">
+      <h3>Preview</h3>
+    
+      <p><strong>Video ID:</strong> {{ videoID }}</p>
+      <p><strong>Video Location:</strong> {{ videoLocation }}</p>
+    
+      <div *ngFor="let topic of topics; let i = index">
+        <h4>Topic {{ i + 1 }} ({{ topic.startTime }} - {{ topic.endTime }})</h4>
+    
+        <div *ngFor="let set of topic.questionSets; let s = index">
+          <h5>Set {{ s + 1 }}</h5>
+    
+          <div *ngFor="let q of set.questions; let qIndex = index">
+            <p><strong>Q{{ qIndex + 1 }}:</strong> {{ q.que }}</p>
+            <ul>
+              <li *ngFor="let opt of q.options; let oi = index">
+                {{ oi }}. {{ opt }}
+                <span *ngIf="oi === q.correctAns">✅</span>
+              </li>
+            </ul>
+            <p><em>Feedback:</em> {{ q.feedback }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button mat-raised-button color="primary" (click)="exportQuizAsJSON()">Export as JSON</button>
+
+  </div>
+ 
+  
+  
