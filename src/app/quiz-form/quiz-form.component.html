@@ -1,0 +1,192 @@
+<form #quizForm="ngForm" (ngSubmit)="saveQuiz()" novalidate>
+  <div class="container">
+
+    <h2 class="title">Quiz Management</h2>
+
+    <!-- Course Information -->
+    <mat-card class="form-section">
+      <h3>Course Information</h3>
+      <div class="row">
+
+        <!-- Programme -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Programme</mat-label>
+          <mat-select [(ngModel)]="programme" name="programme" required #programmeRef="ngModel">
+            <mat-option *ngFor="let prog of programmeOptions" [value]="prog">{{ prog }}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="programmeRef.invalid && programmeRef.touched">Programme is required</mat-error>
+        </mat-form-field>
+
+        <!-- Semester -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Semester</mat-label>
+          <mat-select [(ngModel)]="semester" name="semester" required #semesterRef="ngModel">
+            <mat-option *ngFor="let sem of semesterOptions" [value]="sem">{{ sem }}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="semesterRef.invalid && semesterRef.touched">Semester is required</mat-error>
+        </mat-form-field>
+
+        <!-- Course Code -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Course Code</mat-label>  
+          <input matInput name="courseCode" [(ngModel)]="courseCode" required #courseCodeRef="ngModel" placeholder="Enter Course Code (e.g., OBC101)" />
+          <mat-error *ngIf="courseCodeRef.invalid && courseCodeRef.touched">Course Code is required</mat-error>
+        </mat-form-field>
+
+        <!-- Course Title -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Course Title</mat-label>
+          <input matInput name="courseTitle" [(ngModel)]="courseTitle" required #courseTitleRef="ngModel" placeholder="Enter Course Title (e.g., Data Structures)" />
+          <mat-error *ngIf="courseTitleRef.invalid && courseTitleRef.touched">Course Title is required</mat-error>
+        </mat-form-field>
+      </div>
+    </mat-card>
+
+    <!-- Video Details -->
+    <mat-card class="form-section">
+      <h3>Video Details</h3>
+
+      <!-- Video ID -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>YouTube Video ID</mat-label>
+        <input matInput name="videoID" [(ngModel)]="videoID" (input)="updateVideoPreview()" required #videoIDRef="ngModel" placeholder="Enter YouTube Video ID" />
+        <mat-error *ngIf="videoIDRef.invalid && videoIDRef.touched">YouTube Video ID is required</mat-error>
+      </mat-form-field>
+
+      <!-- Preview -->
+      <iframe *ngIf="videoPreview" [src]="videoPreview" frameborder="0" allowfullscreen class="video-preview"></iframe>
+
+      <!-- Video Location -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Video Location (LMS)</mat-label>
+        <input matInput name="videoLocation" [(ngModel)]="videoLocation" required #videoLocationRef="ngModel" placeholder="Enter LMS Video Link" />
+        <mat-error *ngIf="videoLocationRef.invalid && videoLocationRef.touched">Video Location is required</mat-error>
+      </mat-form-field>
+    </mat-card>
+
+    <!-- Topics -->
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let topic of topics; let topicIndex = index" [expanded]="topicIndex === 0">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Topic {{ topicIndex + 1 }}</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="row">
+          <!-- Start Time -->
+<mat-form-field appearance="outline">
+  <mat-label>Start Time</mat-label>
+  <input matInput [(ngModel)]="topic.startTime"
+         (input)="onTimeInput($event, topic, 'startTime')"
+         maxlength="8"
+         placeholder="MM:SS or HH:MM:SS"
+          (keypress)="preventInvalidKey($event)"
+         name="startTime">
+  <mat-error *ngIf="topic.startTimeError">{{ topic.startTimeError }}</mat-error>
+</mat-form-field>
+
+<mat-form-field appearance="outline">
+  <mat-label>End Time</mat-label>
+  <input matInput [(ngModel)]="topic.endTime"
+         (input)="onTimeInput($event, topic, 'endTime')"
+         maxlength="8"
+         placeholder="MM:SS or HH:MM:SS"
+         (keypress)="preventInvalidKey($event)"
+         name="endTime">
+  <mat-error *ngIf="topic.endTimeError">{{ topic.endTimeError }}</mat-error>
+</mat-form-field>
+
+
+
+        </div>
+
+        <!-- Question Sets -->
+        <div *ngFor="let set of topic.questionSets; let setIndex = index">
+          <h4>Question Set {{ setIndex + 1 }}</h4>
+
+          <mat-card *ngFor="let question of set.questions; let qIndex = index" class="question-card">
+            <mat-card-content>
+              <!-- Question -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Question {{ qIndex + 1 }}</mat-label>
+                <input matInput [(ngModel)]="question.que" name="que{{topicIndex}}{{setIndex}}{{qIndex}}"  placeholder="Enter Question" />
+                <!-- <mat-error *ngIf="queRef.invalid && queRef.touched">Question is required</mat-error> -->
+              </mat-form-field>
+
+              <!-- Options -->
+              <div *ngFor="let option of question.options; let optIndex = index" class="row option-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Option {{ optIndex + 1 }}</mat-label>
+                  <input matInput [(ngModel)]="question.options[optIndex]" [ngModelOptions]="{ standalone: true }"name="opt{{topicIndex}}{{setIndex}}{{qIndex}}{{optIndex}}" placeholder="Enter Option" />
+                </mat-form-field>
+                <button mat-button color="warn" (click)="removeOption(question, optIndex)" type="button">Remove</button>
+              </div>
+              <button mat-button color="primary" (click)="addOption(question)" type="button">+ Add Option</button>
+
+              <!-- Correct Answer -->
+              <mat-form-field appearance="outline">
+                <mat-label>Correct Answer (0-{{ question.options.length - 1 }})</mat-label>
+                <input matInput type="number" [(ngModel)]="question.correctAns" name="correctAns{{qIndex}}" />
+              </mat-form-field>
+
+              <!-- Feedback -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Feedback for Correct Answer</mat-label>
+                <textarea matInput [(ngModel)]="question.feedback" name="feedback{{qIndex}}"></textarea>
+              </mat-form-field>
+
+              <button mat-button color="warn" (click)="removeQuestion(set, qIndex)" type="button">Remove Question</button>
+            </mat-card-content>
+          </mat-card>
+
+          <button mat-button color="accent" (click)="addQuestion(set)" type="button">+ Add Question</button>
+          <button mat-button color="warn" (click)="removeQuestionSet(topic, setIndex)" type="button">Remove Question Set</button>
+        </div>
+
+        <button mat-button color="primary" (click)="addQuestionSet(topic)" type="button">+ Add Question Set</button>
+        <button mat-button color="warn" (click)="removeTopic(topicIndex)" type="button">Remove Topic</button>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <!-- Controls -->
+    <div class="buttons">
+      <button mat-button color="primary" (click)="addTopic()" type="button">+ Add Topic</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="quizForm.invalid">Save Quiz</button>
+    </div>
+
+    <!-- Preview Toggle -->
+    <!-- <button mat-button color="accent" (click)="togglePreview()" type="button">
+      {{ showPreview ? 'Hide Preview' : 'Preview Quiz' }}
+    </button> -->
+    <button mat-button color="accent" (click)="openPreviewDialog()" type="button">
+  Preview Quiz
+</button>
+
+    <!-- Preview Section -->
+    <div *ngIf="showPreview" class="preview-section">
+      <h3>Preview</h3>
+      <p><strong>Video ID:</strong> {{ videoID }}</p>
+      <p><strong>Video Location:</strong> {{ videoLocation }}</p>
+
+      <div *ngFor="let topic of topics; let i = index">
+        <h4>Topic {{ i + 1 }} ({{ topic.startTime }} - {{ topic.endTime }})</h4>
+
+        <div *ngFor="let set of topic.questionSets; let s = index">
+          <h5>Set {{ s + 1 }}</h5>
+
+          <div *ngFor="let q of set.questions; let qIndex = index">
+            <p><strong>Q{{ qIndex + 1 }}:</strong> {{ q.que }}</p>
+            <ul>
+              <li *ngFor="let opt of q.options; let oi = index">
+                {{ oi }}. {{ opt }} <span *ngIf="oi === q.correctAns">✅</span>
+              </li>
+            </ul>
+            <p><em>Feedback:</em> {{ q.feedback }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    
+  </div>
+</form>

@@ -1,0 +1,21 @@
+<h3>Preview</h3>
+<p><strong>Video ID:</strong> {{ data.videoID }}</p>
+<p><strong>Video Location:</strong> {{ data.videoLocation }}</p>
+
+<div *ngFor="let topic of data.topics; let i = index">
+  <h4>Topic {{ i + 1 }} ({{ topic.startTime }} - {{ topic.endTime }})</h4>
+  <div *ngFor="let set of topic.questionSets; let s = index">
+    <h5>Set {{ s + 1 }}</h5>
+    <div *ngFor="let question of set.questions; let q = index">
+      <p><strong>Q{{ q + 1 }}:</strong> {{ question.que }}</p>
+      <ul>
+        <li *ngFor="let opt of question.options; let o = index">
+          {{ opt }}
+        </li>
+      </ul>
+      <div *ngIf="question.feedback">
+        <em>Feedback: {{ question.feedback }}</em>
+      </div>
+    </div>
+  </div>
+</div>

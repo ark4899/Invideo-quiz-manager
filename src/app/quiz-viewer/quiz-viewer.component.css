@@ -1,0 +1,17 @@
+
+.filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+table {
+  width: 100%;
+}
+
+.remark-author {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}

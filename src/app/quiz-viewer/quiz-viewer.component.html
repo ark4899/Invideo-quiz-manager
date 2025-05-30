@@ -1,0 +1,74 @@
+<div class="filters">
+  <mat-form-field>
+    <mat-label>Programme</mat-label>
+    <mat-select [(ngModel)]="selectedProgramme" (selectionChange)="applyFilters()">
+      <mat-option *ngFor="let p of programmeOptions" [value]="p">{{ p }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Semester</mat-label>
+    <mat-select [(ngModel)]="selectedSemester" (selectionChange)="applyFilters()">
+      <mat-option *ngFor="let s of semesterOptions" [value]="s">{{ s }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Course Code</mat-label>
+    <mat-select [(ngModel)]="selectedCourseCode" (selectionChange)="applyFilters()">
+      <mat-option *ngFor="let c of courseCodeOptions" [value]="c">{{ c }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-button (click)="clearFilters()">Clear Filters</button>
+</div>
+
+<table mat-table [dataSource]="filteredQuizzes" class="mat-elevation-z8">
+  <ng-container matColumnDef="programme">
+    <th mat-header-cell *matHeaderCellDef> Programme </th>
+    <td mat-cell *matCellDef="let quiz"> {{quiz.programme}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="courseCode">
+    <th mat-header-cell *matHeaderCellDef> Course Code </th>
+    <td mat-cell *matCellDef="let quiz"> {{quiz.courseCode}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="title">
+    <th mat-header-cell *matHeaderCellDef> Course Title </th>
+    <td mat-cell *matCellDef="let quiz"> {{quiz.courseTitle}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="semester">
+    <th mat-header-cell *matHeaderCellDef> Semester </th>
+    <td mat-cell *matCellDef="let quiz"> {{quiz.semester}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="date">
+    <th mat-header-cell *matHeaderCellDef> Date </th>
+    <td mat-cell *matCellDef="let quiz"> {{quiz.submittedAt | date:'dd-MMMM-yyyy, HH:mm:ss':'Asia/Kolkata':'en-IN'}} </td>
+  </ng-container>
+  
+ <ng-container matColumnDef="remark">
+  <th mat-header-cell *matHeaderCellDef> Remark </th>
+  <td mat-cell *matCellDef="let quiz">
+    <input matInput [(ngModel)]="quiz.remark"
+           (blur)="updateRemark(quiz.id, quiz.remark)"
+           placeholder="Enter remark" />
+    <div *ngIf="quiz.remarkBy" class="remark-author">
+      — {{ quiz.remarkBy }}
+    </div>
+  </td>
+</ng-container>
+
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef> Actions </th>
+    <td mat-cell *matCellDef="let quiz">
+      <button mat-raised-button color="primary" (click)="exportAsJSON(quiz)">Export JSON</button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
