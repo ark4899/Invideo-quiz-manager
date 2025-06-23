@@ -1,0 +1,8 @@
+{
+  "routes": {
+    "/Invideo-quiz-manager": {},
+    "/Invideo-quiz-manager/preview-dialog": {},
+    "/Invideo-quiz-manager/quiz": {},
+    "/Invideo-quiz-manager/quiz-viewer": {}
+  }
+}
