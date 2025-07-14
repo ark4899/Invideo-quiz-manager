@@ -19,6 +19,7 @@
             "polyfills": [
               "zone.js"
             ],
+             "baseHref": "/Invideo-quiz-manager/",
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -39,6 +40,7 @@
           },
           "configurations": {
             "production": {
+              
               "budgets": [
                 {
                   "type": "initial",
@@ -96,6 +98,9 @@
             ],
             "scripts": []
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy"
         }
       }
     }
