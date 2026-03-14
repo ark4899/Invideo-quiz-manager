@@ -1,13 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
-
 html, body { height: 100%; }
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 400;
-  src: url('./assets/fonts/roboto-v48-latin-regular.woff2') format('woff2');
-  src: url('./assets/fonts/material-icons.woff2') format('woff2');
-}
+
 .material-icons {
   font-family: 'Material Icons';
   font-weight: normal;

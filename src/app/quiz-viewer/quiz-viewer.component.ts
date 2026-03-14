@@ -11,8 +11,6 @@ import { Timestamp } from '@angular/fire/firestore';
 import { formatDate } from '@angular/common';
 import { doc, updateDoc } from '@angular/fire/firestore';
 
-
-
 @Component({
   selector: 'app-quiz-viewer',
   standalone: true,
@@ -22,7 +20,8 @@ import { doc, updateDoc } from '@angular/fire/firestore';
 })
 export class QuizViewerComponent {
   firestore = inject(Firestore);
-   currentUserName = 'Anonymous';
+  currentUserName = 'Anonymous';
+
   quizzes$ = collectionData(collection(this.firestore, 'quizzes'), { idField: 'id' }).pipe(
     map(data => data as any[])
   );
@@ -39,27 +38,31 @@ export class QuizViewerComponent {
   selectedCourseCode = '';
 
   displayedColumns = ['programme', 'courseCode', 'title', 'semester', 'date', 'remark', 'actions'];
-constructor() {
-  this.quizzes$.subscribe(data => {
-    // Convert Firestore Timestamp to JS Date for each quiz
-    this.allQuizzes = data.map(q => ({
-      ...q,
-      submittedAt: q.submittedAt && q.submittedAt.toDate ? q.submittedAt.toDate() : q.submittedAt
-    }));
-    this.updateFilterOptions();
-    this.applyFilters();
-  });
-}
 
-updateRemark(quizId: string, newRemark: string): void {
-  const quizDocRef = doc(this.firestore, 'quizzes', quizId);
-  updateDoc(quizDocRef, {
-    remark: newRemark,
-    remarkBy: this.currentUserName // Set this to the logged-in user's name or email
-  })
-    .then(() => console.log('Remark updated'))
-    .catch((error) => console.error('Error updating remark:', error));
-}
+  constructor() {
+    this.quizzes$.subscribe(data => {
+      this.allQuizzes = data.map(q => ({
+        ...q,
+        submittedAt: q.submittedAt && q.submittedAt.toDate ? q.submittedAt.toDate() : q.submittedAt
+      })).sort((a, b) => {
+        const dateA = a.submittedAt instanceof Date ? a.submittedAt : new Date(a.submittedAt);
+        const dateB = b.submittedAt instanceof Date ? b.submittedAt : new Date(b.submittedAt);
+        return dateB.getTime() - dateA.getTime(); // Latest first ✅
+      });
+      this.updateFilterOptions();
+      this.applyFilters();
+    });
+  }
+
+  updateRemark(quizId: string, newRemark: string): void {
+    const quizDocRef = doc(this.firestore, 'quizzes', quizId);
+    updateDoc(quizDocRef, {
+      remark: newRemark,
+      remarkBy: this.currentUserName
+    })
+      .then(() => console.log('Remark updated'))
+      .catch((error: any) => console.error('Error updating remark:', error));
+  }
 
   updateFilterOptions() {
     this.programmeOptions = [...new Set(this.allQuizzes.map(q => q.programme))];
@@ -82,11 +85,11 @@ updateRemark(quizId: string, newRemark: string): void {
   }
 
   exportAsJSON(quiz: any) {
-      let formattedDate = '';
-  if (quiz.date) {
-    let dateObj = quiz.date instanceof Timestamp ? quiz.date.toDate() : new Date(quiz.date);
-    formattedDate = formatDate(dateObj, 'dd-MM-yyyy', 'en-IN', 'Asia/Kolkata');
-  }
+    let formattedDate = '';
+    if (quiz.date) {
+      let dateObj = quiz.date instanceof Timestamp ? quiz.date.toDate() : new Date(quiz.date);
+      formattedDate = formatDate(dateObj, 'dd-MM-yyyy', 'en-IN', 'Asia/Kolkata');
+    }
     const blob = new Blob([JSON.stringify(quiz, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');

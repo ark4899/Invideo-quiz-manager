@@ -113,10 +113,10 @@
               </mat-form-field>
 
               <!-- Options -->
-              <div *ngFor="let option of question.options; let optIndex = index" class="row option-row">
+              <div *ngFor="let option of question.options; let optIndex = index; trackBy: trackByIndex" class="row option-row">
                 <mat-form-field appearance="outline">
                   <mat-label>Option {{ optIndex + 1 }}</mat-label>
-                  <input matInput [(ngModel)]="question.options[optIndex]" [ngModelOptions]="{ standalone: true }"name="opt{{topicIndex}}{{setIndex}}{{qIndex}}{{optIndex}}" placeholder="Enter Option" />
+                  <input matInput [(ngModel)]="question.options[optIndex]" [ngModelOptions]="{ standalone: true }" placeholder="Enter Option" />
                 </mat-form-field>
                 <button mat-button color="warn" (click)="removeOption(question, optIndex)" type="button">Remove</button>
               </div>
